@@ -1,0 +1,9 @@
+ccxt
+pandas
+streamlit
+requests
+plotly
+yfinance
+matplotlib
+scikit-learn
+python-dotenv
