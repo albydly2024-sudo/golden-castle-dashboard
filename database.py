@@ -91,13 +91,41 @@ def update_signal_status(signal_id, status):
 
 def get_pending_signals():
     """Fetches all pending signals for approval."""
-    conn = sqlite3.connect(DB_NAME)
-    df = pd.read_sql("SELECT * FROM signals WHERE status='PENDING' ORDER BY id DESC", conn)
-    conn.close()
-    return df
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        df = pd.read_sql("SELECT * FROM signals WHERE status='PENDING' ORDER BY id DESC", conn)
+        conn.close()
+        return df
+    except pd.errors.DatabaseError as e:
+        if "no such table" in str(e):
+            print("DEBUG: 'signals' table not found. Initializing database...")
+            init_db()
+            # Retry once
+            conn = sqlite3.connect(DB_NAME)
+            df = pd.read_sql("SELECT * FROM signals WHERE status='PENDING' ORDER BY id DESC", conn)
+            conn.close()
+            return df
+        else:
+            raise
 
 def get_approved_signals():
     """Fetches all signals approved by the user but not yet executed."""
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        df = pd.read_sql("SELECT * FROM signals WHERE status='APPROVED' ORDER BY id DESC", conn)
+        conn.close()
+        return df
+    except pd.errors.DatabaseError as e:
+        if "no such table" in str(e):
+            print("DEBUG: 'signals' table not found. Initializing database...")
+            init_db()
+            # Retry once
+            conn = sqlite3.connect(DB_NAME)
+            df = pd.read_sql("SELECT * FROM signals WHERE status='APPROVED' ORDER BY id DESC", conn)
+            conn.close()
+            return df
+        else:
+            raise
     conn = sqlite3.connect(DB_NAME)
     df = pd.read_sql("SELECT * FROM signals WHERE status='APPROVED' ORDER BY id DESC", conn)
     conn.close()
