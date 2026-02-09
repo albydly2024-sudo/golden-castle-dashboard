@@ -27,9 +27,17 @@ SECRET_KEY = get_config('SECRET_KEY', '')
 BINANCE_TESTNET_ENABLED = str(get_config('BINANCE_TESTNET_ENABLED', 'True')).lower() == 'true'
 
 # Cloud/Location Fix
+# Cloud/Location Fix
 # Set BINANCE_USE_US to 'True' if using Streamlit Cloud and get 451 Errors
-BINANCE_USE_US = str(get_config('BINANCE_USE_US', 'False')).lower() == 'true'
+# Default to True if we are in a headless environment (Cloud) and no API key is provided, assuming US restriction.
+is_cloud = os.getenv('STREAMLIT_SERVER_HEADLESS', 'false').lower() == 'true'
+default_us = 'True' if is_cloud and not API_KEY else 'False'
+
+BINANCE_USE_US = str(get_config('BINANCE_USE_US', default_us)).lower() == 'true'
 BINANCE_PROXY = get_config('BINANCE_PROXY', None) # e.g. "http://user:pass@host:port"
+
+if BINANCE_USE_US:
+    print("🇺🇸 US Mode Auto-Enabled due to Cloud/Missing Keys")
 
 # Bot Settings
 # All prices from Binance (Real-time, matches your account)

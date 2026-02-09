@@ -240,13 +240,25 @@ class Backtester:
 
 
 if __name__ == "__main__":
-    # Example usage
-    backtester = Backtester(initial_capital=10000)
+    import os
+    import sys
     
-    symbol = 'BTC/USDT'
-    df = backtester.load_historical_data(symbol, days=180)
-    
-    if df is not None:
-        trades, equity = backtester.run_backtest(symbol, df)
-        metrics = backtester.calculate_metrics(trades, equity)
-        backtester.print_results(metrics)
+    # Check if running in Streamlit Cloud (or locally via streamlit run)
+    # Streamlit sets 'streamlit' in modules or specific env vars
+    is_streamlit = 'streamlit' in sys.modules or os.environ.get('STREAMLIT_SERVER_PORT') or os.environ.get('STREAMLIT_Runtime')
+
+    if is_streamlit:
+        # We are being run by Streamlit as the main script
+        # Redirect to dashboard.py
+        import dashboard
+    else:
+        # CLI Mode - Run Backtest
+        backtester = Backtester(initial_capital=10000)
+        
+        symbol = 'BTC/USDT'
+        df = backtester.load_historical_data(symbol, days=180)
+        
+        if df is not None:
+            trades, equity = backtester.run_backtest(symbol, df)
+            metrics = backtester.calculate_metrics(trades, equity)
+            backtester.print_results(metrics)

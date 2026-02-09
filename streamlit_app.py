@@ -1,7 +1,6 @@
 import streamlit as st
 import os
+import sys
 
-# Run dashboard.py
-with open("dashboard.py", encoding="utf8") as f:
-    code = f.read()
-    exec(code)
+# Ensure this is caught if Streamlit runs this file
+import dashboard
