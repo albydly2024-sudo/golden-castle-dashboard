@@ -1,19 +1,35 @@
 import os
 from dotenv import load_dotenv
 
+# Streamlit secrets support
+try:
+    import streamlit as st
+    HAS_STREAMLIT = True
+except ImportError:
+    HAS_STREAMLIT = False
+
+def get_config(key, default=''):
+    """Helper to get config from Streamlit Secrets or Environment Variables"""
+    if HAS_STREAMLIT:
+        try:
+            return st.secrets.get(key, os.getenv(key, default))
+        except:
+            pass
+    return os.getenv(key, default)
+
 # Load .env file if it exists
 load_dotenv()
 
 # Binance API Configuration
 # WARNING: Keep your keys secret!
-API_KEY = os.getenv('API_KEY', '')
-SECRET_KEY = os.getenv('SECRET_KEY', '')
-BINANCE_TESTNET_ENABLED = os.getenv('BINANCE_TESTNET_ENABLED', 'True') == 'True'
+API_KEY = get_config('API_KEY', '')
+SECRET_KEY = get_config('SECRET_KEY', '')
+BINANCE_TESTNET_ENABLED = str(get_config('BINANCE_TESTNET_ENABLED', 'True')).lower() == 'true'
 
 # Cloud/Location Fix
 # Set BINANCE_USE_US to 'True' if using Streamlit Cloud and get 451 Errors
-BINANCE_USE_US = os.getenv('BINANCE_USE_US', 'False') == 'True'
-BINANCE_PROXY = os.getenv('BINANCE_PROXY', None) # e.g. "http://user:pass@host:port"
+BINANCE_USE_US = str(get_config('BINANCE_USE_US', 'False')).lower() == 'true'
+BINANCE_PROXY = get_config('BINANCE_PROXY', None) # e.g. "http://user:pass@host:port"
 
 # Bot Settings
 # All prices from Binance (Real-time, matches your account)
