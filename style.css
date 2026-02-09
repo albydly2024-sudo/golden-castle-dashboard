@@ -1,294 +1,274 @@
 /* ============================================
-   GOLDEN CITADEL - Premium Trading Terminal
-   Phase 8: Next-Gen Institutional Design v3.0
+   GOLDEN CITADEL - Ultimate Terminal v4.0
+   Responsive & Premium UI/UX Design
 ============================================ */
 
-/* Import Cairo Font for Arabic + Poppins for Numbers */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@400;600;700&display=swap');
-/* Import Font Awesome 6 Professional */
+/* Import Premium Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* === CSS Variables for Theme === */
+/* === Design Token System === */
 :root {
+    /* Colors */
     --gold-primary: #FFD700;
-    --gold-dark: #B8860B;
+    --gold-secondary: #FDB931;
+    --gold-dark: #8A6E2F;
     --gold-glow: rgba(255, 215, 0, 0.4);
-    --gold-gradient: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #111111;
-    --bg-card: rgba(20, 20, 20, 0.95);
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent-green: #00ff88;
-    --accent-red: #ff4444;
-    --accent-blue: #00d4ff;
-    --border-radius: 16px;
-    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #8A6E2F 100%);
+    
+    --bg-dark: #050505;
+    --bg-card: rgba(20, 20, 20, 0.7);
+    --bg-card-hover: rgba(30, 30, 30, 0.85);
+    
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    
+    --success: #00E396;
+    --danger: #FF4560;
+    --warning: #FEB019;
+    --info: #008FFB;
+
+    /* Spacing & Borders */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --border-subtle: 1px solid rgba(255, 255, 255, 0.08);
+    --border-gold: 1px solid rgba(255, 215, 0, 0.3);
+    
+    /* Effects */
+    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.15);
+    --backdrop: blur(20px) saturate(180%);
 }
 
-/* === Global Reset & Base === */
-html,
-body,
-[class*="css"] {
-    font-family: 'Cairo', 'Poppins', sans-serif;
-    color: var(--text-primary);
-    direction: rtl;
-    text-align: right;
+/* === Global Reset === */
+html, body, [class*="css"] {
+    font-family: 'Cairo', 'Outfit', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
 }
 
-/* === Background - Premium Gradient === */
+/* === Streamlit App Background === */
 .stApp {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+    background: 
+        radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 40%),
+        linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
     background-attachment: fixed;
 }
 
-/* === Sidebar === */
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold-secondary);
+}
+
+/* === Premium Sidebar === */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 100%);
-    border-left: 3px solid var(--gold-primary);
-    box-shadow: -5px 0 30px rgba(255, 215, 0, 0.1);
+    background: rgba(10, 10, 10, 0.95);
+    border-left: 1px solid rgba(255, 215, 0, 0.1);
+    backdrop-filter: blur(20px);
 }
 
-[data-testid="stSidebar"] .stMarkdown h1,
-[data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3 {
-    color: var(--gold-primary) !important;
-    text-shadow: 0 0 10px var(--gold-glow);
-}
-
-/* === Header Title === */
-.stTitle,
-h1 {
-    background: linear-gradient(90deg, var(--gold-primary), #fff, var(--gold-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 700 !important;
-    letter-spacing: 2px;
-    text-shadow: none;
-}
-
-/* === Metrics Cards - Premium Glassmorphism === */
-[data-testid="stMetric"] {
-    background: linear-gradient(145deg, rgba(30, 30, 30, 0.9), rgba(15, 15, 15, 0.95));
-    border: 1px solid var(--gold-glow);
-    border-radius: var(--border-radius);
-    padding: 20px;
-    backdrop-filter: blur(15px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-}
-
-[data-testid="stMetric"]:hover {
-    transform: translateY(-3px);
-    border-color: var(--gold-primary);
-    box-shadow: 0 12px 40px rgba(255, 215, 0, 0.15);
-}
-
-[data-testid="stMetricValue"] {
-    font-family: 'Poppins', sans-serif !important;
-    font-size: 2.2rem !important;
-    font-weight: 700 !important;
-    color: var(--gold-primary) !important;
-    text-shadow: 0 0 20px var(--gold-glow);
-    text-align: center !important;
-}
-
-[data-testid="stMetricLabel"] {
-    text-align: center !important;
-    color: var(--text-secondary) !important;
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-[data-testid="stMetricDelta"]>div {
-    font-family: 'Poppins', sans-serif !important;
-    font-weight: 600;
-}
-
-/* Green Delta (Positive) */
-[data-testid="stMetricDelta"] svg[data-testid="stMetricDeltaIcon-Up"] {
-    fill: var(--accent-green) !important;
-}
-
-/* Red Delta (Negative) */
-[data-testid="stMetricDelta"] svg[data-testid="stMetricDeltaIcon-Down"] {
-    fill: var(--accent-red) !important;
-}
-
-/* === Tabs - Modern Style === */
-.stTabs [data-baseweb="tab-list"] {
-    background: transparent;
-    border-bottom: 2px solid rgba(255, 215, 0, 0.2);
-    gap: 10px;
-}
-
-.stTabs [data-baseweb="tab"] {
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text-secondary);
-    background: transparent;
-    border-radius: 8px 8px 0 0;
-    padding: 12px 24px;
-    transition: all 0.3s ease;
-}
-
-.stTabs [data-baseweb="tab"]:hover {
-    color: var(--gold-primary);
-    background: rgba(255, 215, 0, 0.05);
-}
-
-.stTabs [aria-selected="true"] {
-    color: var(--gold-primary) !important;
-    background: linear-gradient(180deg, rgba(255, 215, 0, 0.1) 0%, transparent 100%) !important;
-    border-bottom: 3px solid var(--gold-primary) !important;
-}
-
-/* === DataFrames / Tables === */
-[data-testid="stDataFrame"] {
+/* === Metrics Cards (Responsive Grid) === */
+div[data-testid="metric-container"] {
     background: var(--bg-card);
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    border-radius: var(--border-radius);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 15px 20px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    position: relative;
     overflow: hidden;
 }
 
-[data-testid="stDataFrame"] th {
-    background: linear-gradient(180deg, #1a1a1a, #0a0a0a) !important;
+div[data-testid="metric-container"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--gold-gradient);
+    opacity: 0.5;
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-glow);
+    border-color: rgba(255, 215, 0, 0.4);
+    background: var(--bg-card-hover);
+}
+
+[data-testid="stMetricValue"] {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.8rem !important;
+    font-weight: 700;
+    background: linear-gradient(90deg, #fff, #ddd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.9rem !important;
+    color: var(--text-muted) !important;
+    letter-spacing: 0.5px;
+}
+
+/* === Charts Container === */
+[data-testid="stPlotlyChart"] {
+    background: var(--bg-card);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    box-shadow: var(--shadow-card);
+}
+
+/* === Tabs Enhancement === */
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-lg);
+    padding: 5px;
+    gap: 5px;
+    border: var(--border-subtle);
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 45px;
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: rgba(255, 215, 0, 0.1) !important;
     color: var(--gold-primary) !important;
-    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.3);
 }
 
-[data-testid="stDataFrame"] td {
-    color: var(--text-primary) !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* === Expanders === */
-.streamlit-expanderHeader {
-    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent);
-    border-radius: 8px;
-    font-weight: 600;
-    color: var(--gold-primary) !important;
-}
-
-/* === Buttons === */
-.stButton>button {
-    background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+/* === Buttons (Gradient & Glass) === */
+.stButton > button {
+    background: var(--gold-gradient);
     color: #000 !important;
     font-weight: 700;
     border: none;
-    border-radius: 10px;
-    padding: 10px 25px;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.stButton>button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+.stButton > button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
-/* === Alerts / Info Boxes === */
-.stAlert {
-    border-radius: 12px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
+/* === Input Fields === */
+.stSelectbox > div > div {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: var(--border-subtle) !important;
+    color: white !important;
+    border-radius: var(--radius-sm) !important;
 }
 
-/* === Spinner === */
-.stSpinner>div {
-    border-top-color: var(--gold-primary) !important;
+/* === Animations === */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
 }
 
-/* === Plotly Chart Customization === */
-.js-plotly-plot .plotly .modebar {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-radius: 8px;
+.animate-float {
+    animation: float 4s ease-in-out infinite;
 }
 
-/* === Divider === */
-hr {
-    border-color: rgba(255, 215, 0, 0.2) !important;
-}
+/* =========================================
+   📱 MOBILE & TABLET OPTIMIZATIONS
+========================================= */
 
-/* === Custom Classes === */
-.gold-glow {
-    text-shadow: 0 0 15px var(--gold-glow), 0 0 30px var(--gold-glow);
-}
-
-.premium-card {
-    background: linear-gradient(145deg, var(--bg-card), rgba(10, 10, 10, 0.98));
-    border: 1px solid var(--gold-glow);
-    border-radius: var(--border-radius);
-    padding: 25px;
-    box-shadow: var(--card-shadow);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.premium-card:hover {
-    transform: scale(1.02) rotateX(2deg) rotateY(2deg);
-    border-color: var(--gold-primary);
-    box-shadow: 0 15px 45px rgba(255, 215, 0, 0.2);
-}
-
-/* === Floating Animation === */
-@keyframes floating {
-    0% {
-        transform: translateY(0px);
+/* Tablet Portrait & Mobile (max-width: 992px) */
+@media (max-width: 992px) {
+    [data-testid="stSidebar"] {
+        width: 100% !important; /* Make sidebar fully expandable if needed */
     }
-
-    50% {
-        transform: translateY(-10px);
+    
+    .block-container {
+        padding-top: 3rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
-
-    100% {
-        transform: translateY(0px);
-    }
-}
-
-.floating-icon {
-    animation: floating 3s ease-in-out infinite;
-}
-
-/* === Hide Streamlit Branding === */
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-header {
-    visibility: hidden;
-}
-
-/* === Mobile Optimization === */
-@media (max-width: 768px) {
+    
     [data-testid="stMetricValue"] {
-        font-size: 1.6rem !important;
-    }
-
-    .stApp {
-        padding: 0px !important;
+        font-size: 1.5rem !important;
     }
 }
 
-/* === Animation Keyframes === */
-@keyframes pulse-gold {
-
-    0%,
-    100% {
-        box-shadow: 0 0 5px var(--gold-glow);
+/* Mobile Devices (max-width: 768px) */
+@media (max-width: 768px) {
+    
+    /* Center Aligned Headers for Mobile */
+    h1, h2, h3 {
+        text-align: center;
+    }
+    
+    /* Stack Metrics vertically with spacing */
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 auto !important;
+        margin-bottom: 10px;
+    }
+    
+    /* Metrics look like cards on mobile */
+    div[data-testid="metric-container"] {
+        padding: 10px 15px;
+        background: linear-gradient(90deg, var(--bg-card), rgba(20,20,20,0.9));
+        border-right: 3px solid var(--gold-primary);
+        border-radius: var(--radius-sm);
+    }
+    
+    div[data-testid="metric-container"]::before {
+        display: none; /* Remove side accent for clearer mobile look */
     }
 
-    50% {
-        box-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-glow);
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem !important;
     }
-}
 
-.pulse-animation {
-    animation: pulse-gold 2s infinite;
+    /* Make charts scrollable horizontally if too wide */
+    [data-testid="stPlotlyChart"] {
+        overflow-x: auto;
+    }
+    
+    /* Tabs become scrollable pill list */
+    .stTabs [data-baseweb="tab-list"] {
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 5px;
+    }
+    
+    /* Fix Button Sizes */
+    .stButton > button {
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    /* Hide unnecessary decorative elements on mobile */
+    .mobile-hidden {
+        display: none !important;
+    }
 }

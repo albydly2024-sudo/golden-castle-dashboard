@@ -397,22 +397,23 @@ with st.spinner('🔄 جاري تحميل البيانات...'):
     else:
         current_price = prev_price = price_change = change_pct = high_24h = low_24h = 0
 
-# --- Top Metrics Row ---
-st.markdown("<br>", unsafe_allow_html=True)
+# --- Top Metrics Row (Responsive) ---
+st.markdown("<div class='animate-float' style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
+# Use columns but rely on CSS media queries to stack them on mobile
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
     asset_icon = "🥇" if 'GC' in selected_symbol else "₿" if 'BTC' in selected_symbol else "🪙"
     st.metric(
-        label=f"{asset_icon} السعر الحالي",
+        label=f"{asset_icon} السعر",
         value=f"${current_price:,.2f}",
         delta=f"{change_pct:+.2f}%"
     )
 
 with col2:
     trend = df_chart.iloc[-1]['EMA_200'] if df_chart is not None and not df_chart.empty else 0
-    trend_icon = "🐂" if current_price > trend else "🐻"
+    trend_icon = "🚀" if current_price > trend else "🔻"
     trend_text = "صاعد" if current_price > trend else "هابط"
     st.metric(
         label=f"{trend_icon} الاتجاه",
@@ -421,7 +422,7 @@ with col2:
 
 with col3:
     rsi = df_chart.iloc[-1]['RSI'] if df_chart is not None and not df_chart.empty else 50
-    rsi_icon = "🔥" if rsi > 70 else "❄️" if rsi < 30 else "⚖️"
+    rsi_icon = "🔥" if rsi > 70 else "❄️" if rsi < 30 else "⚡"
     st.metric(
         label=f"{rsi_icon} RSI",
         value=f"{rsi:.1f}"
@@ -429,13 +430,13 @@ with col3:
 
 with col4:
     st.metric(
-        label="📈 أعلى سعر (24س)",
+        label="High 24h",
         value=f"${high_24h:,.2f}"
     )
 
 with col5:
     st.metric(
-        label="📉 أدنى سعر (24س)",
+        label="Low 24h",
         value=f"${low_24h:,.2f}"
     )
 
