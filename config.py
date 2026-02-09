@@ -1,39 +1,39 @@
 import os
 from dotenv import load_dotenv
 
+# Load .env file if it exists
 load_dotenv()
 
-class Config:
-    EXCHANGE_NAME = os.getenv('EXCHANGE_NAME', 'binance')
-    API_KEY = os.getenv('API_KEY')
-    SECRET_KEY = os.getenv('SECRET_KEY')
-    SYMBOL = os.getenv('TRADING_SYMBOL', 'BTC/USDT')
-    ORDER_SIZE_P = float(os.getenv('ORDER_SIZE_PERCENT', 5))
-    STOP_LOSS_P = float(os.getenv('STOP_LOSS_PERCENT', 2))
-    TAKE_PROFIT_P = float(os.getenv('TAKE_PROFIT_PERCENT', 4))
-    MODE = os.getenv('TRADING_MODE', 'paper') # 'paper' or 'live'
-    
-    # Phase 7: Elite Features
-    MAX_OPEN_TRADES = int(os.getenv('MAX_OPEN_TRADES', 3))
-    TP_TARGETS = [1.5, 3.5] # Multi-TP targets (%)
-    BREAK_EVEN_P = float(os.getenv('BREAK_EVEN_P', 1.2)) # Move SL to entry at 1.2% profit
-    
-    # Phase 8: AI & Capital
-    AUTO_COMPOUND = os.getenv('AUTO_COMPOUND', 'true').lower() == 'true'
-    WHALE_VOL_MULTIPLIER = float(os.getenv('WHALE_VOL_MULTIPLIER', 3.0)) # 3x avg volume = whale
-    PUBLIC_MODE = os.getenv('PUBLIC_MODE', 'true').lower() == 'true'
+# Binance API Configuration
+# WARNING: Keep your keys secret!
+API_KEY = os.getenv('API_KEY', '')
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+BINANCE_TESTNET_ENABLED = os.getenv('BINANCE_TESTNET_ENABLED', 'True') == 'True'
 
-    # Telegram Config
-    TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-    TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID') # Primary Owner
-    # List of all authorized IDs (Comma separated in .env)
-    auth_env = os.getenv('AUTHORIZED_USERS', TELEGRAM_CHAT_ID or "")
-    AUTHORIZED_USERS = [id.strip() for id in auth_env.split(',') if id.strip()]
+# Cloud/Location Fix
+# Set BINANCE_USE_US to 'True' if using Streamlit Cloud and get 451 Errors
+BINANCE_USE_US = os.getenv('BINANCE_USE_US', 'False') == 'True'
+BINANCE_PROXY = os.getenv('BINANCE_PROXY', None) # e.g. "http://user:pass@host:port"
 
-    @classmethod
-    def validate(cls):
-        if cls.MODE == 'live' and (not cls.API_KEY or not cls.SECRET_KEY):
-            raise ValueError("API Keys are required for LIVE trading.")
-        print(f"--- Config Loaded: {cls.EXCHANGE_NAME} | {cls.SYMBOL} | Mode: {cls.MODE} ---")
+# Bot Settings
+# All prices from Binance (Real-time, matches your account)
+TARGET_PAIRS = ['PAXG/USDT', 'BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT']
+TIMEFRAME = '1h'  # 1m, 5m, 15m, 1h, 4h, 1d
+LIMIT = 300       # Number of candles to fetch
 
-config = Config()
+# Telegram Settings
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', 'YOUR_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', 'YOUR_CHAT_ID')
+
+# ===== Phase 10: Professional Trading Settings =====
+# Auto-Trading (set to True to enable REAL orders)
+AUTO_TRADE_ENABLED = True  # 🚀 ENABLED: Automatic execution is active
+
+# Risk Management
+MAX_POSITION_SIZE = 1000  # Max $ per position
+RISK_PER_TRADE = 0.02  # 2% risk per trade
+MAX_DAILY_LOSS = 0.05  # 5% max daily loss
+MAX_POSITIONS = 3  # Maximum concurrent positions
+
+# Trading Capital
+TRADING_CAPITAL = 10000  # Starting capital for risk calculations
