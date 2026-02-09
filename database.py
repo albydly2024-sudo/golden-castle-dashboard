@@ -12,60 +12,63 @@ def init_db():
     try:
         conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
-    
-    # Table for Signals
-    c.execute('''CREATE TABLE IF NOT EXISTS signals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT,
-        symbol TEXT,
-        type TEXT,
-        price REAL,
-        stop_loss REAL,
-        take_profit REAL,
-        reason TEXT,
-        status TEXT DEFAULT 'PENDING'
-    )''')
-    conn.row_factory = sqlite3.Row
-    
-    # Table for Market Status (Snapshot for Dashboard)
-    c.execute('''CREATE TABLE IF NOT EXISTS market_status (
-        symbol TEXT PRIMARY KEY,
-        timestamp TEXT,
-        price REAL,
-        trend TEXT,
-        rsi REAL,
-        last_updated TEXT
-    )''')
-    
-    # Phase 10: Table for Completed Trades
-    c.execute('''CREATE TABLE IF NOT EXISTS trades (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        symbol TEXT,
-        type TEXT,
-        entry_time TEXT,
-        exit_time TEXT,
-        entry_price REAL,
-        exit_price REAL,
-        size REAL,
-        profit_loss REAL,
-        profit_pct REAL,
-        exit_reason TEXT
-    )''')
-    
-    # NEW: Table for Active Positions (Persistent Tracking)
-    c.execute('''CREATE TABLE IF NOT EXISTS active_positions (
-        symbol TEXT PRIMARY KEY,
-        type TEXT,
-        entry_price REAL,
-        stop_loss REAL,
-        take_profit REAL,
-        size REAL,
-        highest_price REAL,
-        opened_at TEXT
-    )''')
-    
-    conn.commit()
-    conn.close()
+        
+        # Table for Signals
+        c.execute('''CREATE TABLE IF NOT EXISTS signals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            symbol TEXT,
+            type TEXT,
+            price REAL,
+            stop_loss REAL,
+            take_profit REAL,
+            reason TEXT,
+            status TEXT DEFAULT 'PENDING'
+        )''')
+        conn.row_factory = sqlite3.Row
+        
+        # Table for Market Status (Snapshot for Dashboard)
+        c.execute('''CREATE TABLE IF NOT EXISTS market_status (
+            symbol TEXT PRIMARY KEY,
+            timestamp TEXT,
+            price REAL,
+            trend TEXT,
+            rsi REAL,
+            last_updated TEXT
+        )''')
+        
+        # Phase 10: Table for Completed Trades
+        c.execute('''CREATE TABLE IF NOT EXISTS trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT,
+            type TEXT,
+            entry_time TEXT,
+            exit_time TEXT,
+            entry_price REAL,
+            exit_price REAL,
+            size REAL,
+            profit_loss REAL,
+            profit_pct REAL,
+            exit_reason TEXT
+        )''')
+        
+        # NEW: Table for Active Positions (Persistent Tracking)
+        c.execute('''CREATE TABLE IF NOT EXISTS active_positions (
+            symbol TEXT PRIMARY KEY,
+            type TEXT,
+            entry_price REAL,
+            stop_loss REAL,
+            take_profit REAL,
+            size REAL,
+            highest_price REAL,
+            opened_at TEXT
+        )''')
+        
+        conn.commit()
+        conn.close()
+        print("DEBUG: Database initialized successfully.")
+    except Exception as e:
+        print(f"ERROR: Failed to initialize database: {e}")
 
 def log_signal(symbol, type, price, sl, tp, reason, status='PENDING'):
     """Logs a new trade signal."""
