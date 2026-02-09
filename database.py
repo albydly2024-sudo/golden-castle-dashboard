@@ -18,8 +18,10 @@ def init_db():
         price REAL,
         stop_loss REAL,
         take_profit REAL,
-        reason TEXT
+        reason TEXT,
+        status TEXT DEFAULT 'PENDING'
     )''')
+    conn.row_factory = sqlite3.Row
     
     # Table for Market Status (Snapshot for Dashboard)
     c.execute('''CREATE TABLE IF NOT EXISTS market_status (
@@ -46,19 +48,53 @@ def init_db():
         exit_reason TEXT
     )''')
     
+    # NEW: Table for Active Positions (Persistent Tracking)
+    c.execute('''CREATE TABLE IF NOT EXISTS active_positions (
+        symbol TEXT PRIMARY KEY,
+        type TEXT,
+        entry_price REAL,
+        stop_loss REAL,
+        take_profit REAL,
+        size REAL,
+        highest_price REAL,
+        opened_at TEXT
+    )''')
+    
     conn.commit()
     conn.close()
 
-def log_signal(symbol, type, price, sl, tp, reason):
+def log_signal(symbol, type, price, sl, tp, reason, status='PENDING'):
     """Logs a new trade signal."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    c.execute('''INSERT INTO signals (timestamp, symbol, type, price, stop_loss, take_profit, reason)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)''', 
-              (timestamp, symbol, type, price, sl, tp, reason))
+    c.execute('''INSERT INTO signals (timestamp, symbol, type, price, stop_loss, take_profit, reason, status)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
+              (timestamp, symbol, type, price, sl, tp, reason, status))
     conn.commit()
     conn.close()
+
+def update_signal_status(signal_id, status):
+    """Updates the status of a signal (APPROVED/REJECTED)."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("UPDATE signals SET status=? WHERE id=?", (status, signal_id))
+    conn.commit()
+    conn.close()
+
+def get_pending_signals():
+    """Fetches all pending signals for approval."""
+    conn = sqlite3.connect(DB_NAME)
+    df = pd.read_sql("SELECT * FROM signals WHERE status='PENDING' ORDER BY id DESC", conn)
+    conn.close()
+    return df
+
+def get_approved_signals():
+    """Fetches all signals approved by the user but not yet executed."""
+    conn = sqlite3.connect(DB_NAME)
+    df = pd.read_sql("SELECT * FROM signals WHERE status='APPROVED' ORDER BY id DESC", conn)
+    conn.close()
+    return df
 
 def update_market_status(symbol, price, trend, rsi):
     """Updates the latest status for a coin."""
@@ -140,3 +176,43 @@ def calculate_stats():
         'worst_trade': round(worst_trade, 2),
         'avg_profit': round(avg_profit, 2)
     }
+
+# ===== Active Position Management =====
+
+def save_active_position(symbol, pos_type, entry, sl, tp, size, highest):
+    """Saves or updates an active position in the database."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    opened_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    c.execute('''INSERT OR REPLACE INTO active_positions 
+                 (symbol, type, entry_price, stop_loss, take_profit, size, highest_price, opened_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+              (symbol, pos_type, entry, sl, tp, size, highest, opened_at))
+    conn.commit()
+    conn.close()
+
+def get_active_positions():
+    """Retrieves all active positions from the database."""
+    conn = sqlite3.connect(DB_NAME)
+    df = pd.read_sql("SELECT * FROM active_positions", conn)
+    conn.close()
+    positions = {}
+    for _, row in df.iterrows():
+        positions[row['symbol']] = {
+            'type': row['type'],
+            'entry': row['entry_price'],
+            'sl': row['stop_loss'],
+            'tp': row['take_profit'],
+            'size': row['size'],
+            'highest_price': row['highest_price'],
+            'opened_at': row['opened_at']
+        }
+    return positions
+
+def remove_active_position(symbol):
+    """Removes a position from active tracking."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("DELETE FROM active_positions WHERE symbol=?", (symbol,))
+    conn.commit()
+    conn.close()

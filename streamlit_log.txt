@@ -1,0 +1,75 @@
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://10.0.22.188:8501
+
++------------------------- Traceback (most recent call last) --------------------------+
+| C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runt |
+| ime\scriptrunner\exec_code.py:129 in exec_func_with_error_handling                   |
+|                                                                                      |
+| C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runt |
+| ime\scriptrunner\script_runner.py:689 in code_to_exec                                |
+|                                                                                      |
+| c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\dashboard.py:44 in <module>             |
+|                                                                                      |
+|    41     """Initialize Client and Strategy once."""                                 |
+|    42     return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtest |
+|    43                                                                                |
+| >  44 client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_b |
+|    45                                                                                |
+|    46 # ==========================================================                   |
+|    47 # 3. Advanced Charting Function                                                |
+|                                                                                      |
+| C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runt |
+| ime\caching\cache_utils.py:281 in __call__                                           |
+|                                                                                      |
+| C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runt |
+| ime\caching\cache_utils.py:326 in _get_or_create_cached_value                        |
+|                                                                                      |
+| C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runt |
+| ime\caching\cache_utils.py:385 in _handle_cache_miss                                 |
+|                                                                                      |
+| c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\dashboard.py:42 in get_bot_components   |
+|                                                                                      |
+|    39 @st.cache_resource                                                             |
+|    40 def get_bot_components():                                                      |
+|    41     """Initialize Client and Strategy once."""                                 |
+| >  42     return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtest |
+|    43                                                                                |
+|    44 client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_b |
+|    45                                                                                |
+|                                                                                      |
+| c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\market_data.py:11 in __init__           |
+|                                                                                      |
+|     8     def __init__(self):                                                        |
+|     9         # Check if keys are configured                                         |
+|    10         if config.SECRET_KEY == 'YOUR_SECRET_KEY_HERE' or config.SECRET_KEY == |
+| >  11             print("2026-02-09 03:37:12.804 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runtime\scriptrunner\exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\dashboard.py", line 44, in <module>
+    client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_bot_components()
+                                                                             ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 281, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 326, in _get_or_create_cached_value
+    return self._handle_cache_miss(cache, value_key, func_args, func_kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 385, in _handle_cache_miss
+    computed_value = self._info.func(*func_args, **func_kwargs)
+  File "c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\dashboard.py", line 42, in get_bot_components
+    return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtester(), RiskManager()
+           ~~~~~~~~~~~~~^^
+  File "c:\Users\BC\Desktop\„Ã·œ ÃœÌœ (3)\crypto_bot\market_data.py", line 11, in __init__
+    print("\u26a0\ufe0f secret Key excluded. Running in Public Mode (Analysis Only).")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\BC\AppData\Local\Programs\Python\Python314\Lib\encodings\cp1256.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>

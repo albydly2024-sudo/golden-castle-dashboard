@@ -8,6 +8,7 @@ Phase 10: Component 4
 import ccxt
 import config
 from datetime import datetime
+import database
 
 class TradeExecutor:
     def __init__(self, client):
@@ -120,13 +121,21 @@ class TradeExecutor:
             'sl': setup['stop_loss'],
             'tp': setup['take_profit'],
             'size': position_size,
+            'highest_price': setup['entry'],
             'entry_order': entry_order,
             'sl_order': sl_order,
             'tp_order': tp_order,
             'opened_at': datetime.now()
         }
         
-        print(f"✅ Position opened successfully!")
+        # PERSIST TO DB
+        database.save_active_position(
+            symbol, setup['type'], setup['entry'], 
+            setup['stop_loss'], setup['take_profit'], 
+            position_size, setup['entry']
+        )
+        
+        print(f"✅ Position opened and saved to DB!")
         return self.active_positions[symbol]
     
     def close_position(self, symbol):
@@ -154,9 +163,37 @@ class TradeExecutor:
                 pass
             
             del self.active_positions[symbol]
-            print(f"✅ Position closed for {symbol}")
+            database.remove_active_position(symbol)
+            print(f"✅ Position closed and removed from DB for {symbol}")
             
         return close_order
+
+    def check_trailing_stops(self, current_prices):
+        """ Checks all active positions for trailing stop trigger. """
+        for symbol, pos in list(self.active_positions.items()):
+            if symbol not in current_prices: continue
+            
+            price = current_prices[symbol]
+            
+            # Update high watermark
+            if pos['type'] == 'LONG' and price > pos['highest_price']:
+                pos['highest_price'] = price
+                database.save_active_position(symbol, pos['type'], pos['entry'], pos['sl'], pos['tp'], pos['size'], price)
+            elif pos['type'] == 'SHORT' and price < pos['highest_price']: # For short, 'highest' is actually lowest
+                pos['highest_price'] = price
+                database.save_active_position(symbol, pos['type'], pos['entry'], pos['sl'], pos['tp'], pos['size'], price)
+
+            # Check for trailing stop (e.g. 1.5% drop from peak)
+            if pos['type'] == 'LONG':
+                drop = (pos['highest_price'] - price) / pos['highest_price'] * 100
+                if drop >= 1.5: # 1.5% Trailing Stop
+                    print(f"🛑 Trailing Stop Triggered for {symbol} (LONG)")
+                    self.close_position(symbol)
+            elif pos['type'] == 'SHORT':
+                rise = (price - pos['highest_price']) / pos['highest_price'] * 100
+                if rise >= 1.5:
+                    print(f"🛑 Trailing Stop Triggered for {symbol} (SHORT)")
+                    self.close_position(symbol)
     
     def get_position_status(self, symbol):
         """

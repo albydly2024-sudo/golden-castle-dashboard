@@ -6,8 +6,9 @@ load_dotenv()
 
 # Binance API Configuration
 # WARNING: Keep your keys secret!
-API_KEY = os.getenv('API_KEY', 'tDbzQK7QJ99rO1BxwVFK02qttwqG68kvSycN1WIPC69rFgFpMeeTzsaL2bh7lSOC')
-SECRET_KEY = os.getenv('SECRET_KEY', 'oWVzZQshVCCMrhcnBO8K1mM6DzUGpEQiVPfr3PCVzkWQBven3mzREVORgUq2BjfV')
+API_KEY = os.getenv('API_KEY', '')
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+BINANCE_TESTNET_ENABLED = os.getenv('BINANCE_TESTNET_ENABLED', 'True') == 'True'
 
 # Bot Settings
 # All prices from Binance (Real-time, matches your account)
@@ -21,7 +22,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', 'YOUR_CHAT_ID')
 
 # ===== Phase 10: Professional Trading Settings =====
 # Auto-Trading (set to True to enable REAL orders)
-AUTO_TRADE_ENABLED = False  # ⚠️ CRITICAL: Keep False until fully tested
+AUTO_TRADE_ENABLED = True  # 🚀 ENABLED: Automatic execution is active
 
 # Risk Management
 MAX_POSITION_SIZE = 1000  # Max $ per position

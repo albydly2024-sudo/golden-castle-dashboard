@@ -34,6 +34,15 @@ class RiskManager:
         
         position_size = risk_amount / price_risk
         
+        # Cap by Max Position Size (from Config)
+        max_size_value = config.MAX_POSITION_SIZE
+        if position_size * entry_price > max_size_value:
+            position_size = max_size_value / entry_price
+            
+        # Cap by Available Balance (Spot)
+        if position_size * entry_price > balance:
+            position_size = (balance * 0.95) / entry_price # Leave 5% buffer for fees
+            
         return round(position_size, 6)
     
     def check_daily_loss_limit(self):

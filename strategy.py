@@ -9,6 +9,8 @@ class Strategy:
         self.mav_short = 20
         self.risk_reward_ratio = 2.0
         self.atr_multiplier = 1.5
+        self.volume_ma_period = 20
+        self.volume_spike_multiplier = 1.5 # 50% above average
 
     def calculate_rsi(self, series, period=14):
         delta = series.diff()
@@ -62,6 +64,9 @@ class Strategy:
         tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
         df['ATR'] = tr.ewm(alpha=1/14, adjust=False).mean()
 
+        # 6. Volume Moving Average
+        df['Volume_MA'] = df['volume'].rolling(window=self.volume_ma_period).mean()
+
         return df
 
     def check_signal(self, df, df_mtf=None):
@@ -87,13 +92,20 @@ class Strategy:
         # 1. 1h Trend is UP
         is_uptrend = curr['close'] > curr['EMA_200']
         # 2. 4h Trend confirms (MTF)
-        mtf_confirm_long = (mtf_bias == "BULLISH" or mtf_bias == "NEUTRAL") # Neutral if data missing
+        mtf_confirm_long = (mtf_bias == "BULLISH" or mtf_bias == "NEUTRAL") 
         # 3. Momentum is Positive
         is_momentum_up = curr['MACD'] > curr['MACD_Signal']
         # 4. Pullback Entry
         is_pullback = curr['low'] <= curr['BBL_20_2.0'] * 1.01
         
-        if is_uptrend and mtf_confirm_long and is_momentum_up and is_pullback:
+        # 5. Volume Spike
+        is_volume_spike = curr['volume'] > (curr['Volume_MA'] * self.volume_spike_multiplier)
+        
+        # 6. Candle Close Confirmation (Last candle closed in direction)
+        is_candle_bullish = curr['close'] > curr['open']
+        is_candle_bearish = curr['close'] < curr['open']
+
+        if is_uptrend and mtf_confirm_long and is_momentum_up and is_pullback and is_candle_bullish and is_volume_spike:
             signal = "BUY"
             stop_loss = curr['close'] - (curr['ATR'] * self.atr_multiplier)
             risk = curr['close'] - stop_loss
@@ -104,7 +116,7 @@ class Strategy:
                 "entry": curr['close'],
                 "stop_loss": stop_loss,
                 "take_profit": take_profit,
-                "reason": f"MTF {mtf_bias} + اتجاه صاعد + MACD إيجابي + بولنجر"
+                "reason": f"MTF {mtf_bias} + اتجاه صاعد + MACD إيجابي + حجم مرتفع ✅"
             }
         
         # --- SHORT (SELL) STRATEGY ---
@@ -119,7 +131,7 @@ class Strategy:
         # 5. RSI Overbought
         is_overbought = curr['RSI'] > 70
         
-        if is_downtrend and mtf_confirm_short and is_momentum_down and (is_bounce or is_overbought):
+        if is_downtrend and mtf_confirm_short and is_momentum_down and (is_bounce or is_overbought) and is_candle_bearish and is_volume_spike:
             signal = "SELL"
             stop_loss = curr['close'] + (curr['ATR'] * self.atr_multiplier)
             risk = stop_loss - curr['close']
@@ -130,7 +142,7 @@ class Strategy:
                 "entry": curr['close'],
                 "stop_loss": stop_loss,
                 "take_profit": take_profit,
-                "reason": f"MTF {mtf_bias} + اتجاه هابط + MACD سلبي + " + ("RSI تشبع" if is_overbought else "بولنجر")
+                "reason": f"MTF {mtf_bias} + اتجاه هابط + حجم مرتفع ✅"
             }
         
         return signal, setup

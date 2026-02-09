@@ -377,6 +377,7 @@ with st.sidebar:
                 border-radius: 10px; padding: 15px; text-align: center;'>
         <span style='font-size: 1.5rem;'>{status_icon}</span>
         <p style='margin: 5px 0; color: {status_color}; font-weight: bold;'>{status_text}</p>
+        {f"<p style='margin:0; font-size: 0.7rem; color: #FFA500;'>وضع الاختبار (Testnet) مفعّل</p>" if config.BINANCE_TESTNET_ENABLED else ""}
     </div>
     """, unsafe_allow_html=True)
 
@@ -439,13 +440,14 @@ with col5:
     )
 
 # --- Tabs ---
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📈 التحليل الفني", 
     "🧠 تحليل الاستراتيجية", 
     "🥇 تحليل الذهب", 
     "🤖 الذكاء الاصطناعي",
     "⚙️ اختبار الاستراتيجية",
-    "📜 سجل التوصيات"
+    "🎯 التداول الآلي",
+    "📜 سجل الإشارات"
 ])
 
 with tab1:
@@ -753,11 +755,125 @@ with tab5:
         else:
             st.info("👈 اضبط الإعدادات وانقر على 'تشغيل الاختبار'")
 
-with tab6:
+    # === Live Trading Tab (Phase 10) ===
+    st.markdown("### 🎯 محرك التداول الآلي (بث مباشر)")
+    
+    # --- Approval Queue (NEW) ---
+    st.markdown("#### ⏳ صفقات في انتظار الموافقة")
+    pending_signals = database.get_pending_signals()
+    
+    if not pending_signals.empty:
+        for index, row in pending_signals.iterrows():
+            with st.container():
+                # Use a specific style for signal cards
+                color = "#00ff88" if row['type'] == 'BUY' else "#ff4444"
+                st.markdown(f"""
+                <div style='border: 1px solid {color}; border-radius: 10px; padding: 15px; margin-bottom: 10px; background: rgba(0,0,0,0.2);'>
+                    <div style='display: flex; justify-content: space-between;'>
+                        <strong style='color: {color};'>{row['type']} - {row['symbol']}</strong>
+                        <span style='color: #888; font-size: 0.8rem;'>{row['timestamp']}</span>
+                    </div>
+                    <p style='margin: 5px 0;'>سعر الدخول: ${row['price']:.2f} | وقف الخسارة: ${row['stop_loss']:.2f} | الهدف: ${row['take_profit']:.2f}</p>
+                    <p style='font-size: 0.8rem; color: #aaa;'>السبب: {row['reason']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                col_acc, col_rej, _ = st.columns([1, 1, 4])
+                if col_acc.button("✅ قبول الصفقة", key=f"acc_{row['id']}", use_container_width=True):
+                    database.update_signal_status(row['id'], 'APPROVED')
+                    st.success(f"تمت الموافقة على صفقة {row['symbol']}! جاري التنفيذ...")
+                    time.sleep(1)
+                    st.rerun()
+                if col_rej.button("❌ رفض", key=f"rej_{row['id']}", use_container_width=True):
+                    database.update_signal_status(row['id'], 'REJECTED')
+                    st.warning(f"تم رفض إشارة {row['symbol']}.")
+                    time.sleep(1)
+                    st.rerun()
+    else:
+        st.write("✅ لا توجد إشارات معلقة حالياً.")
+
+    st.divider()
+
+    # --- Quick Manual Trade (NEW) ---
+    st.markdown("#### ⚡ تنفيذ صفقة سريعة (يدوي)")
+    col_qt1, col_qt2, col_qt3 = st.columns([2, 1, 1])
+    
+    with col_qt1:
+        qt_symbol = st.selectbox("اختر العملة", config.TARGET_PAIRS, key="qt_symbol")
+    with col_qt2:
+        qt_type = st.radio("النوع", ["BUY", "SELL"], horizontal=True, key="qt_type")
+    with col_qt3:
+        qt_execute = st.button("🚀 تنفيذ فوراً", use_container_width=True)
+        
+    if qt_execute:
+        with st.spinner("جاري التنفيذ..."):
+            # Price and Risk
+            curr_p = client.get_current_price(qt_symbol)
+            atr = 0.01 * curr_p # Simple 1% mock ATR for manual trade
+            sl = curr_p - (atr * 1.5) if qt_type == "BUY" else curr_p + (atr * 1.5)
+            tp = curr_p + (atr * 2.0) if qt_type == "BUY" else curr_p - (atr * 2.0)
+            
+            # Log as APPROVED so the bot picks it up
+            database.log_signal(qt_symbol, qt_type, curr_p, sl, tp, "تنفيذ يدوي سريع من لوحة التحكم", "APPROVED")
+            st.success(f"تم إرسال أمر {qt_type} لـ {qt_symbol} للمحرك!")
+            time.sleep(1)
+            st.rerun()
+
+    st.divider()
+    
+    # Get Stats
+    stats = database.calculate_stats()
+    
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    col_s1.metric("إجمالي الربح/الخسارة", f"${stats['total_pnl']}", delta=f"{stats['total_pnl']}$")
+    col_s2.metric("نسبة النجاح", f"{stats['win_rate']}%")
+    col_s3.metric("عدد الصفقات المنفذة", stats['total_trades'])
+    col_s4.metric("أفضل صفقة", f"${stats['best_trade']}")
+
+    st.divider()
+    
+    # Active Positions
+    st.markdown("#### 🟢 الصفقات المفتوحة حالياً")
+    active_pos = database.get_active_positions()
+    if active_pos:
+        pos_list = []
+        for sym, data in active_pos.items():
+            current_p = client.get_current_price(sym)
+            pnl = (current_p - data['entry']) * data['size'] if data['type'] == 'LONG' else (data['entry'] - current_p) * data['size']
+            pnl_pct = (pnl / (data['entry'] * data['size'])) * 100
+            
+            pos_list.append({
+                'الرمز': sym,
+                'النوع': data['type'],
+                'سعر الدخول': f"${data['entry']:.2f}",
+                'السعر الحالي': f"${current_p:.2f}",
+                'الكمية': f"{data['size']:.4f}",
+                'الربح/الخسارة': f"${pnl:.2f}",
+                'النسبة': f"{pnl_pct:+.2f}%",
+                'وقت الفتح': data['opened_at']
+            })
+        st.table(pd.DataFrame(pos_list))
+    else:
+        st.info("ℹ️ لا توجد صفقات مفتوحة حالياً. المحرك يراقب السوق...")
+
+    st.divider()
+
+    # Trade History
+    st.markdown("#### 📜 تاريخ الصفقات المكتملة")
+    history_df = database.get_trade_history(50)
+    if not history_df.empty:
+        # Translate and format
+        disp_history = history_df[['symbol', 'type', 'entry_price', 'exit_price', 'profit_loss', 'exit_reason', 'exit_time']].copy()
+        disp_history.columns = ['🪙 الرمز', '📊 النوع', '🎯 دخول', '🏁 خروج', '💰 الربح', '📝 السبب', '⏰ الوقت']
+        st.dataframe(disp_history, use_container_width=True)
+    else:
+        st.info("🔍 لا يوجد تاريخ صفقات حتى الآن.")
+
+with tab7:
     signals_df = database.get_recent_signals(50)
     if not signals_df.empty:
-        display_signals = signals_df[['timestamp', 'symbol', 'type', 'entry', 'stop_loss', 'take_profit', 'reason']].copy()
-        display_signals.columns = ['⏰ التوقيت', '🪙 الأصل', '📊 النوع', '🎯 الدخول', '🛑 وقف الخسارة', '✅ الهدف', '📝 السبب']
+        display_signals = signals_df[['timestamp', 'symbol', 'type', 'price', 'stop_loss', 'take_profit', 'status', 'reason']].copy()
+        display_signals.columns = ['⏰ التوقيت', '🪙 الأصل', '📊 النوع', '🎯 الدخول', '🛑 وقف الخسارة', '✅ الهدف', '📌 الحالة', '📝 السبب']
         st.dataframe(display_signals, use_container_width=True)
     else:
         st.info("🔍 لا توجد توصيات مسجلة حتى الآن. الصبر مفتاح الربح!")

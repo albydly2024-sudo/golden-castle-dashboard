@@ -7,7 +7,7 @@ import yfinance as yf
 class BinanceClient:
     def __init__(self):
         # Check if keys are configured
-        if config.SECRET_KEY == 'YOUR_SECRET_KEY_HERE':
+        if config.SECRET_KEY == 'YOUR_SECRET_KEY_HERE' or config.SECRET_KEY == '':
             print("⚠️ secret Key excluded. Running in Public Mode (Analysis Only).")
             self.exchange = ccxt.binance({'enableRateLimit': True})
         else:
@@ -17,6 +17,10 @@ class BinanceClient:
                 'enableRateLimit': True,
                 'options': {'defaultType': 'spot'}
             })
+            
+            if config.BINANCE_TESTNET_ENABLED:
+                self.exchange.set_sandbox_mode(True)
+                print("🎮 Binance Testnet (Sandbox) Mode ENABLED.")
 
     def fetch_data(self, symbol, timeframe, limit):
         """
