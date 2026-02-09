@@ -250,10 +250,6 @@ if __name__ == "__main__":
     if is_streamlit:
         # We are being run by Streamlit as the main script
         # Redirect to dashboard.py
-        import importlib
-        import database
-        print("DEBUG: Force reloading database module...")
-        importlib.reload(database)
         import dashboard
     else:
         # CLI Mode - Run Backtest

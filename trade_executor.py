@@ -8,7 +8,7 @@ Phase 10: Component 4
 import ccxt
 import config
 from datetime import datetime
-import database
+import db_manager as database
 
 class TradeExecutor:
     def __init__(self, client):

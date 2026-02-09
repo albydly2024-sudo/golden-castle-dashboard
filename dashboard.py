@@ -10,7 +10,7 @@ import pandas as pd
 import time
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import database
+import db_manager as database
 import config
 from market_data import BinanceClient
 from strategy import Strategy

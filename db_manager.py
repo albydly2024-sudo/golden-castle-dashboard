@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 # Version Tracer
-print("DEBUG: Loading database.py v3 (Force Reload Fix)")
+print("DEBUG: Loading db_manager.py v1 (Renamed Fix)")
 
 # Use absolute path to ensure consistency across imports
 DB_NAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_data.db")

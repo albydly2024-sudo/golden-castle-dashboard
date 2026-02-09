@@ -2,7 +2,7 @@ import time
 import config
 from market_data import BinanceClient
 from strategy import Strategy
-import database
+import db_manager as database
 import telegram_bot
 from risk_manager import RiskManager
 from trade_executor import TradeExecutor
