@@ -36,11 +36,12 @@ with open('style.css', encoding="utf-8") as f:
 # ==========================================================
 # 2. Initialize Components
 # ==========================================================
+# Initialize Database Tables First (Must be done before any components load)
+database.init_db()
+
 @st.cache_resource
 def get_bot_components():
     """Initialize Client and Strategy once."""
-    # Initialize Database Tables First
-    database.init_db()
     return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtester(), RiskManager()
 
 client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_bot_components()
