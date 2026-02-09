@@ -20,15 +20,6 @@ from ai_analyzer import AIAnalyzer
 from risk_manager import RiskManager
 
 # ==========================================================
-# 1. Page Configuration
-# ==========================================================
-st.set_page_config(
-    page_title="القلعة الذهبية | Golden Citadel",
-    page_icon="🏰",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Load Premium CSS
 with open('style.css', encoding="utf-8") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
