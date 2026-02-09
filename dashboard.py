@@ -19,7 +19,17 @@ from backtester import Backtester
 from ai_analyzer import AIAnalyzer
 from risk_manager import RiskManager
 
+
 # ==========================================================
+# 1. Page Configuration
+# ==========================================================
+st.set_page_config(
+    page_title="القلعة الذهبية | Golden Citadel",
+    page_icon="🏰",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Load Premium CSS
 with open('style.css', encoding="utf-8") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -27,15 +37,19 @@ with open('style.css', encoding="utf-8") as f:
 # ==========================================================
 # 2. Initialize Components
 # ==========================================================
-# Initialize Database Tables First (Must be done before any components load)
-database.init_db()
+try:
+    # Initialize Database Tables First (Must be done before any components load)
+    database.init_db()
 
-@st.cache_resource
-def get_bot_components():
-    """Initialize Client and Strategy once."""
-    return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtester(), RiskManager()
+    @st.cache_resource
+    def get_bot_components():
+        """Initialize Client and Strategy once."""
+        return BinanceClient(), Strategy(), GoldAnalyzer(), AIAnalyzer(), Backtester(), RiskManager()
 
-client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_bot_components()
+    client, strategy, gold_analyzer, ai_analyzer, backtester, risk_manager = get_bot_components()
+except Exception as e:
+    st.error(f"🚨 Critical Error during initialization: {e}")
+    st.stop()
 
 # ==========================================================
 # 3. Advanced Charting Function
