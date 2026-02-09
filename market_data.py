@@ -6,21 +6,36 @@ import yfinance as yf
 
 class BinanceClient:
     def __init__(self):
+        # Choose between Binance.com and Binance.us (Fallback for Cloud restricted locations)
+        exchange_class = ccxt.binanceus if config.BINANCE_USE_US else ccxt.binance
+        
+        exchange_config = {
+            'enableRateLimit': True,
+            'options': {'defaultType': 'spot'}
+        }
+        
+        # Add proxy if configured
+        if config.BINANCE_PROXY:
+            exchange_config['proxies'] = {
+                'http': config.BINANCE_PROXY,
+                'https': config.BINANCE_PROXY,
+            }
+
         # Check if keys are configured
         if config.SECRET_KEY == 'YOUR_SECRET_KEY_HERE' or config.SECRET_KEY == '':
-            print("⚠️ secret Key excluded. Running in Public Mode (Analysis Only).")
-            self.exchange = ccxt.binance({'enableRateLimit': True})
+            print(f"⚠️ API Key not detected. Running in Public Mode (Analysis Only) on {'Binance US' if config.BINANCE_USE_US else 'Binance'}.")
+            self.exchange = exchange_class(exchange_config)
         else:
-            self.exchange = ccxt.binance({
-                'apiKey': config.API_KEY,
-                'secret': config.SECRET_KEY,
-                'enableRateLimit': True,
-                'options': {'defaultType': 'spot'}
-            })
+            exchange_config['apiKey'] = config.API_KEY
+            exchange_config['secret'] = config.SECRET_KEY
+            self.exchange = exchange_class(exchange_config)
             
             if config.BINANCE_TESTNET_ENABLED:
-                self.exchange.set_sandbox_mode(True)
-                print("🎮 Binance Testnet (Sandbox) Mode ENABLED.")
+                try:
+                    self.exchange.set_sandbox_mode(True)
+                    print("🎮 Binance Testnet (Sandbox) Mode ENABLED.")
+                except Exception as e:
+                    print(f"⚠️ Could not enable Sandbox: {e}")
 
     def fetch_data(self, symbol, timeframe, limit):
         """

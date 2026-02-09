@@ -10,6 +10,11 @@ API_KEY = os.getenv('API_KEY', '')
 SECRET_KEY = os.getenv('SECRET_KEY', '')
 BINANCE_TESTNET_ENABLED = os.getenv('BINANCE_TESTNET_ENABLED', 'True') == 'True'
 
+# Cloud/Location Fix
+# Set BINANCE_USE_US to 'True' if using Streamlit Cloud and get 451 Errors
+BINANCE_USE_US = os.getenv('BINANCE_USE_US', 'False') == 'True'
+BINANCE_PROXY = os.getenv('BINANCE_PROXY', None) # e.g. "http://user:pass@host:port"
+
 # Bot Settings
 # All prices from Binance (Real-time, matches your account)
 TARGET_PAIRS = ['PAXG/USDT', 'BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT']
