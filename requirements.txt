@@ -1,10 +1,9 @@
-ccxt
-pandas
 streamlit
-requests
+pandas
 plotly
+ccxt
 yfinance
-matplotlib
-scikit-learn
-python-dotenv
 altair<5
+python-dotenv
+psutil
+mcp
