@@ -1,13 +1,17 @@
+import os
 import sqlite3
 import pandas as pd
 from datetime import datetime
 
-DB_NAME = "bot_data.db"
+# Use absolute path to ensure consistency across imports
+DB_NAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_data.db")
 
 def init_db():
     """Initializes the SQLite database with necessary tables."""
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
+    print(f"DEBUG: Initializing database at {DB_NAME}")
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
     
     # Table for Signals
     c.execute('''CREATE TABLE IF NOT EXISTS signals (
